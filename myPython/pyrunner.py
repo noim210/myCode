@@ -159,5 +159,32 @@ def addcleaninput(scode):
     #print(sret)
     return sret
 
+def findresult(soutput, sbase):
+    msg="AC"
+    isAC=True
+    soutput = cleanstrdata(soutput)
+    
+    #checking ERROR::
+    lines =soutput.split('\n')
+
+    for line in lines:
+        if line[:7]=="ERROR::":
+            msg=line
+            isAC=False
+
+    if isAC==False:
+        return (isAC,msg)
+
+    isAC=compare2str(soutput,sbase)
+    if isAC==False:
+        msg="WA"
+    return(isAC,msg)
+
+
+
+
+
+
+
 
 
