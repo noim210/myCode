@@ -1,4 +1,5 @@
 import sys
+from io import StringIO
 
 def pyrun(data,isfile=False,notestcase=100,ain='a.in',aout='a.out'):
 
@@ -7,6 +8,7 @@ def pyrun(data,isfile=False,notestcase=100,ain='a.in',aout='a.out'):
     else:
         scode=data
 
+    scode =  addcleaninput(scode)
     originp=sys.stdin
     origout = sys.stdout
     with open(ain, "r") as fin:
@@ -38,6 +40,49 @@ def pyrun(data,isfile=False,notestcase=100,ain='a.in',aout='a.out'):
                 print("\n::@-End-")
                 sys.stdin = originp
                 sys.stdout = origout
+
+def pyruntostr(data,isfile=False,notestcase=100,ain='a.in',aout='a.out'):
+
+    if (isfile==True):
+        scode=filetostr(data)
+    else:
+        scode=data
+
+    scode =  addcleaninput(scode)
+    originp=sys.stdin
+    origout = sys.stdout
+    with open(ain, "r") as fin:
+        sys.stdin = fin
+        sys.stdout = myiostr = StringIO()
+        try:
+            print("::@-Start-")
+            for i in range(notestcase):
+                exec(scode, {})
+                print("\n::@-----")
+        except SyntaxError:
+            print("ERROR::CompilingError::SyntaxError")
+        except NameError:
+            print("ERROR::CompilingError::NameError")
+        except ZeroDivisionError:
+            print("ERROR::RuntimeError::ZeroDivisionError")
+        except TypeError:
+            print("ERROR::CompilingError::TypeError")
+        except ValueError:
+            print("ERROR::CompilingError::ValueError")
+        except RuntimeError:
+            print("ERROR::RuntimeError::RuntimeError")
+        except EOFError:
+            print("\n::@-End-")
+        except :
+            print("ERROR::CompilingError::CompilingError")
+        finally:
+            print("\n::@-End-")
+            sys.stdin = originp
+            sys.stdout = origout
+    
+    soutput = myiostr.getvalue();
+    return soutput
+
 
 
 def filetostr(fname):
@@ -105,3 +150,13 @@ def compare2str_soft(str1,str2):
         if(lines1[i]!=lines2[i]):
             return False;
     return True
+
+def addcleaninput(scode):
+    sprefix = ("\nimport builtins\n"
+                "def input(par=\'\'):\n"
+                "    return builtins.input()\n\n")
+    sret= sprefix+scode
+    #print(sret)
+    return sret
+
+
